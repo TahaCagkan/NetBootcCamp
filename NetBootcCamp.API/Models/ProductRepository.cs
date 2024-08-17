@@ -8,9 +8,17 @@
                 new Product { Id = 2, Name = "Product 2", Price = 200 },
                 new Product { Id = 3, Name = "Product 3", Price = 300 }
             ];
-        public IReadOnlyList<Product> GetAll()
+        public IReadOnlyList<Product> GetAll() => _products;
+
+        public Product? GetById(int id) => _products.Find(x => x.Id == id);
+
+        //write delete method
+        public void Delete(int id)
         {
-            return _products;
+            var product = GetById(id);
+
+            _products.Remove(product);
         }
+
     }
 }

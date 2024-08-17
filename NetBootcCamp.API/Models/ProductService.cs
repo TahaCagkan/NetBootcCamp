@@ -7,20 +7,48 @@ namespace NetBootcCamp.API.Models
     {
         private readonly ProductRepository _productRepository = new();
 
-        public ImmutableList<ProductDto> GetAllWithCalculatedTax()
+        public ResponseDto<ImmutableList<ProductDto>> GetAllWithCalculatedTax()
         {
 
-            return _productRepository.GetAll().Select(product =>
-                new ProductDto
-                {
-                    Id = product.Id,
-                    Name = product.Name,
-                    Price = CalculateKdv(product.Price,1.20m),
-                    Created = product.Created.ToShortDateString()
-                }).ToImmutableList();
-            
+            var productList = _productRepository.GetAll().Select(product => new ProductDto(
+                product.Id, 
+                product.Name, 
+                CalculateKdv(product.Price, 1.20m), 
+                product.Created.ToShortDateString()
+                )).ToImmutableList();
+
+            return ResponseDto<ImmutableList<ProductDto>>.Success(productList);
         }
+
         private decimal CalculateKdv(decimal price,decimal tax) => price* tax;
-  
+        
+        public ProductDto? GetById(int id)
+        {
+            var hasProduct =_productRepository.GetById(id);
+
+            if(hasProduct is null)
+            {
+                return null!;
+            }
+
+            return new ProductDto(
+                hasProduct.Id,
+                hasProduct.Name,
+                CalculateKdv(hasProduct.Price, 1.20m),
+                hasProduct.Created.ToShortTimeString()
+                );
+        }
+
+        public ResponseDto<NoContent>  Delete(int id)
+        {
+            var hasProduct = _productRepository.GetById(id);
+            if(hasProduct is null)
+            {
+                return ResponseDto<NoContent>.Fail("Silinmeye çalışılan ürün bulunamadı.");
+                
+            }
+            _productRepository.Delete(id);
+            return ResponseDto<NoContent>.Success();
+        }
     }
 }

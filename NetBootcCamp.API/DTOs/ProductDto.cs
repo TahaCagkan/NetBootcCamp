@@ -8,5 +8,4 @@
     //    public decimal Price { get; init; }
     //    public string Created { get; init; } = default!;
     //}
-
 }
